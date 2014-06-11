@@ -19,7 +19,7 @@
  */
 
 angular.module('famous.angular')
-  .directive('faApp', ["$famous", "$famousDecorator", function ($famous, $famousDecorator) {
+  .directive('faApp', ["$famous", "$famousDecorator", "$parse", function ($famous, $famousDecorator, $parse) {
     return {
       template: '<div style="display: none;"><div></div></div>',
       transclude: true,
@@ -37,7 +37,13 @@ angular.module('famous.angular')
             
             element.append('<div class="famous-angular-container"></div>');
             isolate.context = Engine.createContext(element[0].querySelector('.famous-angular-container'));
-
+            
+            attrs.$observe("faPerspective",function(){
+              var candidate = $parse(attrs["faPerspective"]);
+              if(candidate instanceof Function) candidate = candidate();
+              isolate.context.setPerspective(+candidate);
+            });
+            
             function AppView(){
               View.apply(this, arguments);
             }
